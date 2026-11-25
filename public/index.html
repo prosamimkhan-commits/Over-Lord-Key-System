@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en" translate="no">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="google" content="notranslate">
+<meta name="theme-color" content="#000000">
+<title>Get Key — OVER LORD</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+/* ── reset ─────────────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+
+/* ── tokens ────────────────────────────────────────────── */
+:root{
+  --bg:#000;
+  --s0:rgba(255,255,255,0.03);
+  --s1:rgba(255,255,255,0.055);
+  --s2:rgba(255,255,255,0.1);
+  --b0:rgba(255,255,255,0.07);
+  --b1:rgba(255,255,255,0.13);
+  --b2:rgba(255,255,255,0.28);
+  --b-warn:rgba(250,204,21,0.22);
+  --text:#f0f0f0;
+  --muted:#606060;
+  --dim:#3a3a3a;
+  --warn-fg:#fbbf24;
+  --white:#fff;
+  --r:14px;
+  --r-sm:9px;
+}
+
+/* ── base ──────────────────────────────────────────────── */
+html,body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Inter',system-ui,sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* ── ambient light ─────────────────────────────────────── */
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 50% at 15% 8%,rgba(255,255,255,0.03) 0%,transparent 65%),
+    radial-gradient(ellipse 55% 40% at 88% 92%,rgba(255,255,255,0.022) 0%,transparent 60%);
+}
+
+/* ── grain ─────────────────────────────────────────────── */
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
+  opacity:.03;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size:160px;
+}
+
+/* ── layout ────────────────────────────────────────────── */
+.root{
+  position:relative;z-index:1;
+  min-height:100vh;
+  display:flex;
+  align-items:flex-start;
+  justify-content:center;
+  padding:16px 16px 64px;
+}
+
+.container{
+  width:100%;
+  max-width:400px;
+  display:flex;
+  flex-direction:column;
+  gap:16px;
+  animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both;
+}
+
+@keyframes fadeUp{
+  from{opacity:0;transform:translateY(16px)}
+  to{opacity:1;transform:translateY(0)}
+}
+
+/* ── header ────────────────────────────────────────────── */
+.hdr{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center}
+
+.icon-wrap{
+  width:52px;height:52px;border-radius:15px;border:1px solid var(--b1);
+  background:var(--s1);backdrop-filter:blur(14px);
+  display:flex;align-items:center;justify-content:center;color:var(--text);
+}
+
+.hdr h1{font-size:20px;font-weight:600;letter-spacing:-.01em;color:var(--white);line-height:1.2}
+.hdr p{font-size:13px;color:var(--muted);line-height:1.55;max-width:280px}
+
+/* ── duration selector ─────────────────────────────────── */
+.dur-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+.dur-btn{
+  position:relative;border:1px solid var(--b0);border-radius:var(--r-sm);
+  background:var(--s0);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  padding:13px 12px;color:var(--muted);cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:3px;overflow:hidden;
+  transition:background .16s,border-color .16s,color .16s,transform .1s;
+}
+.dur-btn:hover{border-color:var(--b1);color:var(--text)}
+.dur-btn:active{transform:scale(.98)}
+.dur-btn.active{background:var(--s2);border-color:var(--b2);color:var(--white);box-shadow:0 0 0 1px rgba(255,255,255,.06) inset}
+
+.dur-val{font-family:'JetBrains Mono',monospace;font-size:17px;font-weight:600;line-height:1.15;color:inherit}
+.dur-lbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.dur-btn.active .dur-lbl{color:rgba(255,255,255,.72)}
+
+.dur-tag{
+  position:absolute;top:7px;right:7px;font-size:9px;font-weight:600;
+  letter-spacing:.05em;text-transform:uppercase;padding:2px 6px;border-radius:999px;
+  border:1px solid var(--b0);background:var(--s0);color:var(--muted);
+}
+.dur-btn.active .dur-tag{border-color:var(--b1);background:var(--s1);color:var(--white)}
+
+/* ── step indicator ────────────────────────────────────── */
+.step-row{display:flex;align-items:center;gap:10px}
+
+.step-node{
+  width:28px;height:28px;border-radius:50%;border:1.5px solid var(--b2);
+  background:var(--s1);display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;font-size:11px;font-weight:700;color:var(--white);
+  backdrop-filter:blur(8px);
+}
+.step-node.inactive{border-color:var(--b0);color:var(--dim)}
+.step-node.done{background:var(--s2);border-color:var(--b2)}
+
+.step-label{font-size:11px;font-weight:500;color:var(--muted);flex-shrink:0}
+.step-line{flex:1;height:1px;background:var(--b0)}
+
+/* ── main card ─────────────────────────────────────────── */
+.card{background:var(--s1);border:1px solid var(--b1);border-radius:var(--r);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);overflow:hidden}
+.card-body{padding:22px;display:flex;flex-direction:column;gap:18px}
+.card-title{font-size:15px;font-weight:600;color:var(--white);letter-spacing:-.01em}
+.card-desc{margin-top:5px;font-size:13px;color:var(--muted);line-height:1.6}
+
+/* ── warning banner ────────────────────────────────────── */
+.warn-banner{
+  display:flex;gap:11px;align-items:flex-start;padding:13px 15px;
+  border-radius:var(--r-sm);border:1px solid var(--b-warn);background:rgba(251,191,36,.05);
+}
+.warn-icon{color:var(--warn-fg);flex-shrink:0;margin-top:1px}
+.warn-title{font-size:11px;font-weight:700;color:var(--warn-fg);letter-spacing:.04em;margin-bottom:3px}
+.warn-text{font-size:12px;color:var(--muted);line-height:1.55}
+
+/* ── continue button ───────────────────────────────────── */
+.continue-btn{
+  width:100%;height:44px;border:1px solid var(--b2);border-radius:var(--r-sm);
+  background:var(--s2);backdrop-filter:blur(14px);color:var(--white);
+  font-family:'Inter',sans-serif;font-size:13px;font-weight:600;letter-spacing:.03em;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;
+  position:relative;overflow:hidden;
+  transition:background .16s,border-color .16s,transform .1s;
+}
+.continue-btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(160deg,rgba(255,255,255,.09) 0%,rgba(255,255,255,.03) 50%,transparent 100%);
+  pointer-events:none;
+}
+.continue-btn::after{
+  content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;
+  background:linear-gradient(100deg,transparent,rgba(255,255,255,.09),transparent);
+  animation:shimmer 2.6s linear infinite;
+}
+@keyframes shimmer{to{left:130%}}
+.continue-btn:active{transform:scale(.985)}
+.continue-btn:disabled{opacity:.4;pointer-events:none}
+.continue-btn:disabled::after{display:none}
+
+/* ── spinner ───────────────────────────────────────────── */
+.spinner{
+  width:15px;height:15px;border:2px solid rgba(255,255,255,.2);
+  border-top-color:var(--white);border-radius:50%;
+  animation:spin .8s linear infinite;display:none;
+}
+.spinner.vis{display:block}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── result card ───────────────────────────────────────── */
+.result-card{display:none;flex-direction:column;gap:14px}
+.result-card.vis{display:flex}
+
+.result-label{font-size:11px;font-weight:600;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+
+.key-display{
+  display:flex;align-items:center;gap:10px;background:var(--s0);
+  border:1px solid var(--b1);border-radius:var(--r-sm);padding:12px 14px;
+}
+.key-value{flex:1;font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:500;color:var(--white);letter-spacing:.04em;word-break:break-all}
+
+.copy-btn{
+  flex-shrink:0;width:32px;height:32px;border:1px solid var(--b1);border-radius:7px;
+  background:var(--s1);color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:color .15s,border-color .15s;
+}
+.copy-btn:hover{color:var(--white);border-color:var(--b2)}
+.copy-btn:active{transform:scale(.9)}
+
+.expiry-line{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}
+
+/* ── notice ────────────────────────────────────────────── */
+.notice{
+  display:none;align-items:flex-start;gap:10px;padding:12px 14px;
+  border-radius:var(--r-sm);border:1px solid var(--b0);background:var(--s0);
+  font-size:12px;color:var(--muted);line-height:1.55;
+}
+.notice.vis{display:flex}
+.notice.ok{border-color:rgba(74,222,128,.2);background:rgba(74,222,128,.04);color:#86efac}
+.notice.err{border-color:rgba(248,113,113,.2);background:rgba(248,113,113,.04);color:#fca5a5}
+.notice-icon{flex-shrink:0;margin-top:1px}
+
+/* ── floating music button ─────────────────────────────── */
+.music-btn{
+  position:fixed;bottom:18px;right:18px;z-index:10;
+  width:42px;height:42px;border-radius:50%;border:1px solid var(--b1);
+  background:rgba(12,12,12,.88);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:border-color .16s,background .16s,color .16s,transform .12s;
+}
+.music-btn:hover{border-color:var(--b2);background:var(--s2);color:var(--white)}
+.music-btn:active{transform:scale(.92)}
+.music-btn.muted{color:var(--muted);border-color:var(--b0)}
+
+/* ── footer ────────────────────────────────────────────── */
+.foot{text-align:center;font-size:11px;color:var(--dim);line-height:1.7}
+.foot a{color:var(--muted);text-decoration:underline;text-underline-offset:3px;text-decoration-color:var(--b1);font-weight:500;transition:color .15s}
+.foot a:hover{color:var(--text)}
+</style>
+</head>
+<body>
+
+<audio id="bgm" loop preload="auto" src="/getkey/space_bg.mp3"></audio>
+
+<!-- floating music button -->
+<button class="music-btn" id="musicBtn" onclick="toggleMusic(event)" aria-label="Toggle background music" title="Music On/Off">
+  <svg id="musicOnIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 5 6 9H2v6h4l5 4V5z"/>
+    <path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>
+    <path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>
+  </svg>
+  <svg id="musicOffIcon" style="display:none" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11 5 6 9H2v6h4l5 4V5z"/>
+    <line x1="22" y1="9" x2="16" y2="15"/>
+    <line x1="16" y1="9" x2="22" y2="15"/>
+  </svg>
+</button>
+
+<div class="root">
+  <div class="container">
+
+    <!-- header -->
+    <header class="hdr">
+      <div class="icon-wrap">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="m15.5 7.5 2.3 2.3a1 1 0 0 0 1.4 0l2.1-2.1a1 1 0 0 0 0-1.4L19 4"/>
+          <path d="m21 2-9.6 9.6"/>
+          <circle cx="7.5" cy="15.5" r="5.5"/>
+        </svg>
+      </div>
+      <div>
+        <h1>Get a Free Key</h1>
+        <p>Select duration and complete the step below to receive your access key.</p>
+      </div>
+    </header>
+
+    <!-- duration selector -->
+    <div class="dur-row" role="group" aria-label="Key duration">
+      <button type="button" class="dur-btn" id="dur12" onclick="selectDuration('12h')">
+        <span class="dur-val">12H</span>
+        <span class="dur-lbl">Hours Key</span>
+      </button>
+      <button type="button" class="dur-btn active" id="dur24" onclick="selectDuration('24h')">
+        <span class="dur-tag">Popular</span>
+        <span class="dur-val">24H</span>
+        <span class="dur-lbl">Hours Key</span>
+      </button>
+    </div>
+
+    <!-- step indicator -->
+    <div class="step-row">
+      <div class="step-node" id="stepNode1"><span id="stepNum1">1</span></div>
+      <span class="step-label" id="stepLbl">Step 1 of 1</span>
+      <div class="step-line"></div>
+      <div class="step-node inactive" id="stepNode2">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg>
+      </div>
+    </div>
+
+    <!-- main card -->
+    <div class="card">
+      <div class="card-body">
+
+        <div>
+          <div class="card-title" id="cardTitle">First Step</div>
+          <div class="card-desc" id="cardDesc">
+            To continue, click the button below to complete the first step.
+            You will be redirected and then return to this page once finished.
+          </div>
+        </div>
+
+        <!-- warning -->
+        <div class="warn-banner" id="warnBanner">
+          <div class="warn-icon">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/>
+              <path d="M12 8v4"/><path d="M12 16h.01"/>
+            </svg>
+          </div>
+          <div>
+            <div class="warn-title">Security Notice</div>
+            <div class="warn-text">The use of bots or any kind of automation will result in your key being banned.</div>
+          </div>
+        </div>
+
+        <!-- notice -->
+        <div class="notice" id="notice">
+          <div class="notice-icon" id="noticeIcon"></div>
+          <span id="noticeText"></span>
+        </div>
+
+        <!-- key result -->
+        <div class="result-card" id="resultCard">
+          <div class="result-label">Your Key</div>
+          <div class="key-display">
+            <div class="key-value" id="keyValue">—</div>
+            <button class="copy-btn" onclick="copyKey()" aria-label="Copy key">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="14" height="14" x="8" y="8" rx="2" ry="2"/>
+                <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>
+              </svg>
+            </button>
+          </div>
+          <div class="expiry-line">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            </svg>
+            <span id="expiryText">Expires: —</span>
+          </div>
+        </div>
+
+        <!-- continue button -->
+        <button class="continue-btn" id="continueBtn" onclick="handleContinue()">
+          <span id="btnLabel">Continue to Step</span>
+          <div class="spinner" id="btnSpinner"></div>
+          <svg id="btnArrow" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 12h14"/><path d="m12 5 7 7-7 7"/>
+          </svg>
+        </button>
+
+      </div>
+    </div>
+
+    <!-- footer -->
+    <footer class="foot">
+      Powered by <strong style="color:var(--muted)">OVER LORD</strong> key system &nbsp;·&nbsp;
+      <a href="https://t.me/TAREQMODZ" target="_blank" rel="noopener">Support</a>
+    </footer>
+
+  </div>
+</div>
+
+<script>
+"use strict";
+var SELECTED_DURATION = "24h";
+var _currentKey = "";
+
+function $(id){ return document.getElementById(id); }
+
+/* ── duration ──────────────────────────────────────────── */
+function selectDuration(dur) {
+  SELECTED_DURATION = (dur === "12h") ? "12h" : "24h";
+  $("dur12").className = "dur-btn" + (SELECTED_DURATION === "12h" ? " active" : "");
+  $("dur24").className = "dur-btn" + (SELECTED_DURATION === "24h" ? " active" : "");
+  try { localStorage.setItem("tq_earn_type", SELECTED_DURATION); } catch(e){}
+}
+
+/* ── ui helpers ────────────────────────────────────────── */
+function setLoading(on) {
+  $("continueBtn").disabled = on;
+  $("btnSpinner").className = "spinner" + (on ? " vis" : "");
+  $("btnArrow").style.display = on ? "none" : "";
+}
+
+function showNotice(type, text) {
+  var el = $("notice");
+  el.className = "notice vis " + (type === "ok" ? "ok" : "err");
+  $("noticeText").textContent = text;
+  $("noticeIcon").innerHTML = type === "ok"
+    ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>'
+    : '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>';
+}
+function hideNotice(){ $("notice").className = "notice"; }
+
+function markStepDone() {
+  $("stepNode1").className = "step-node done";
+  $("stepNode1").innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
+  $("stepNode2").className = "step-node";
+  $("stepLbl").textContent = "Step 1 of 1 — Done";
+}
+
+function showKey(key, expiresAt) {
+  _currentKey = key;
+  $("keyValue").textContent = key;
+  if (expiresAt) {
+    $("expiryText").textContent = "Expires: " + new Date(expiresAt).toLocaleString();
+  }
+  $("resultCard").className = "result-card vis";
+  $("warnBanner").style.display = "none";
+  $("cardTitle").textContent = "Your Key is Ready";
+  $("cardDesc").textContent = "Copy the key below and use it on your first login. It binds to the first device automatically.";
+  $("btnLabel").textContent = "Get Another Key";
+  $("continueBtn").disabled = false;
+  markStepDone();
+  // Clear token from URL bar (clean UX)
+  try { history.replaceState(null, "", location.pathname); } catch(e){}
+}
+
+function copyKey() {
+  if (!_currentKey) return;
+  navigator.clipboard.writeText(_currentKey).then(function() {
+    showNotice("ok", "Key copied to clipboard.");
+    setTimeout(hideNotice, 2200);
+  }).catch(function() {
+    showNotice("err", "Copy failed — select and copy manually.");
+  });
+}
+
+/* ── music ─────────────────────────────────────────────── */
+var BGM = null;
+var MUSIC_ON = true;
+
+function renderMusicUI(on) {
+  var btn    = $("musicBtn");
+  var onIc   = $("musicOnIcon");
+  var offIc  = $("musicOffIcon");
+  if (!btn) return;
+  onIc.style.display  = on ? "block" : "none";
+  offIc.style.display = on ? "none"  : "block";
+  btn.className = "music-btn" + (on ? "" : " muted");
+}
+
+function playBGM() {
+  if (!BGM) return;
+  var p = BGM.play();
+  if (p && p.catch) p.catch(function(){});
+}
+
+function unlockBGM() {
+  if (BGM && BGM.paused && MUSIC_ON) playBGM();
+}
+
+function toggleMusic(ev) {
+  if (ev) { ev.stopPropagation(); ev.preventDefault(); }
+  MUSIC_ON = !MUSIC_ON;
+  try { localStorage.setItem("tq_bgm", MUSIC_ON ? "on" : "off"); } catch(e){}
+  if (!BGM) { renderMusicUI(MUSIC_ON); return; }
+  if (MUSIC_ON) { renderMusicUI(true); playBGM(); }
+  else          { BGM.pause(); renderMusicUI(false); }
+}
+
+function initBGM() {
+  BGM = $("bgm");
+  if (!BGM) return;
+  BGM.volume = 0.85;
+  try { MUSIC_ON = localStorage.getItem("tq_bgm") !== "off"; } catch(e){}
+  renderMusicUI(MUSIC_ON);
+  if (MUSIC_ON) playBGM();
+  document.addEventListener("touchstart", unlockBGM, { passive: true });
+  document.addEventListener("click", unlockBGM);
+}
+
+/* ── return-flow: check URL for token ──────────────────── */
+function checkReturnToken() {
+  var params = new URLSearchParams(location.search);
+  var token  = params.get("token");
+  if (!token) {
+    try { token = sessionStorage.getItem("tq_return_token"); } catch(e){}
+  }
+  if (token) {
+    // Determine saved type
+    var savedType = "24h";
+    try { savedType = localStorage.getItem("tq_earn_type") || "24h"; } catch(e){}
+    selectDuration(savedType);
+    fetchKey(token);
+  }
+}
+
+/* ── fetch key (return flow) ───────────────────────────── */
+async function fetchKey(token) {
+  setLoading(true);
+  hideNotice();
+  try {
+    var res  = await fetch("/getkey/api/key", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: token, type: SELECTED_DURATION })
+    });
+    var data = await res.json();
+    if (data.ok && data.key) {
+      showKey(data.key, data.expiresAt || null);
+      try { sessionStorage.removeItem("tq_return_token"); } catch(e){}
+    } else {
+      setLoading(false);
+      showNotice("err", data.message || "Token invalid or expired. Please try again.");
+    }
+  } catch(err) {
+    setLoading(false);
+    showNotice("err", "Connection error: " + err.message);
+  }
+}
+
+/* ── main button ───────────────────────────────────────── */
+async function handleContinue() {
+  // "Get Another Key" mode
+  if ($("resultCard").classList.contains("vis")) {
+    _currentKey = "";
+    location.reload();
+    return;
+  }
+
+  setLoading(true);
+  hideNotice();
+
+  try {
+    var res  = await fetch("/getkey/api/start", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ type: SELECTED_DURATION })
+    });
+    var data = await res.json();
+
+    if (data.ok && data.link) {
+      try {
+        sessionStorage.setItem("tq_return_token", data.token);
+        localStorage.setItem("tq_earn_type", SELECTED_DURATION);
+      } catch(e){}
+      showNotice("ok", "Redirecting to " + SELECTED_DURATION + " earn task…");
+      setTimeout(function(){ location.href = data.link; }, 600);
+    } else {
+      setLoading(false);
+      showNotice("err", data.message || "Something went wrong. Please try again.");
+    }
+  } catch(err) {
+    setLoading(false);
+    showNotice("err", "Connection error: " + err.message);
+  }
+}
+
+/* ── init ──────────────────────────────────────────────── */
+(function(){
+  var savedDur = "24h";
+  try { savedDur = localStorage.getItem("tq_earn_type") || "24h"; } catch(e){}
+  selectDuration(savedDur);
+  initBGM();
+  checkReturnToken();
+})();
+</script>
+</body>
+</html>
