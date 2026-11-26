@@ -412,6 +412,11 @@ function showKey(key, expiresAt) {
   $("keyValue").textContent = key;
   if (expiresAt) {
     $("expiryText").textContent = "Expires: " + new Date(expiresAt).toLocaleString();
+    // localStorage এ save করো
+    try {
+      localStorage.setItem("tq_saved_key", key);
+      localStorage.setItem("tq_saved_expiry", expiresAt);
+    } catch(e){}
   }
   $("resultCard").className = "result-card vis";
   $("warnBanner").style.display = "none";
@@ -523,6 +528,7 @@ async function handleContinue() {
   // "Get Another Key" mode
   if ($("resultCard").classList.contains("vis")) {
     _currentKey = "";
+    clearSavedKey();
     location.reload();
     return;
   }
@@ -555,13 +561,57 @@ async function handleContinue() {
   }
 }
 
+/* ── check saved key (page load) ───────────────────────── */
+async function checkSavedKey() {
+  var key = null;
+  try { key = localStorage.getItem("tq_saved_key"); } catch(e){}
+  if (!key) return false;
+
+  try {
+    var res  = await fetch("/getkey/api/verify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ key: key })
+    });
+    var data = await res.json();
+
+    if (data.ok && data.valid) {
+      // Key এখনো valid — দেখাও
+      showKey(key, data.expiresAt);
+      return true;
+    } else {
+      // Expired — clear করো
+      try {
+        localStorage.removeItem("tq_saved_key");
+        localStorage.removeItem("tq_saved_expiry");
+      } catch(e){}
+      return false;
+    }
+  } catch(e) {
+    return false;
+  }
+}
+
+/* ── "Get Another Key" — saved key clear করো ──────────── */
+function clearSavedKey() {
+  try {
+    localStorage.removeItem("tq_saved_key");
+    localStorage.removeItem("tq_saved_expiry");
+  } catch(e){}
+}
+
 /* ── init ──────────────────────────────────────────────── */
-(function(){
+(async function(){
   var savedDur = "24h";
   try { savedDur = localStorage.getItem("tq_earn_type") || "24h"; } catch(e){}
   selectDuration(savedDur);
   initBGM();
-  checkReturnToken();
+
+  // আগে saved key check করো
+  var hadKey = await checkSavedKey();
+  if (!hadKey) {
+    checkReturnToken(); // নতুন token আছে কিনা দেখো
+  }
 })();
 </script>
 </body>
