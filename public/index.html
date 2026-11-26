@@ -606,12 +606,7 @@ function clearSavedKey() {
   try { savedDur = localStorage.getItem("tq_earn_type") || "24h"; } catch(e){}
   selectDuration(savedDur);
   initBGM();
-
-  // আগে saved key check করো
-  var hadKey = await checkSavedKey();
-  if (!hadKey) {
-    checkReturnToken(); // নতুন token আছে কিনা দেখো
-  }
+  await checkSavedKey();
 })();
 </script>
 </body>
