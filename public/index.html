@@ -549,7 +549,7 @@ async function handleContinue() {
         sessionStorage.setItem("tq_return_token", data.token);
         localStorage.setItem("tq_earn_type", SELECTED_DURATION);
       } catch(e){}
-      showNotice("ok", "Redirecting to " + SELECTED_DURATION + " earn task…");
+      showNotice("ok", "Redirecting…");
       setTimeout(function(){ location.href = data.link; }, 600);
     } else {
       setLoading(false);
@@ -606,7 +606,12 @@ function clearSavedKey() {
   try { savedDur = localStorage.getItem("tq_earn_type") || "24h"; } catch(e){}
   selectDuration(savedDur);
   initBGM();
-  await checkSavedKey();
+
+  // আগে saved key check করো
+  var hadKey = await checkSavedKey();
+  if (!hadKey) {
+    checkReturnToken(); // নতুন token আছে কিনা দেখো
+  }
 })();
 </script>
 </body>
