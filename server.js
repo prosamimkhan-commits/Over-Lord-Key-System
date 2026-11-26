@@ -18,7 +18,8 @@ const KEY_PREFIX        = process.env.KEY_PREFIX        || "OVER_LORD";
 const MIN_TASK_SECONDS  = parseInt(process.env.MIN_TASK_SECONDS || "8", 10);
 // Your shortlink/earn-task API that generates a destination link.
 // Should accept ?token=X&return_url=Y and redirect user back when done.
-const EARN_API          = process.env.EARN_SHORTLINK_API || "";
+const EARN_API_KEY      = process.env.EARN_API_KEY  || "";
+const EARN_API_BASE     = process.env.EARN_API_BASE || "https://earnlinks.in/api";
 
 // ── in-memory store ─────────────────────────────────────────────
 // Railway restarts wipe this — fine for a key server of this scale.
@@ -116,9 +117,9 @@ function verifySignedToken(token) {
 
 /** Generate a unique key string */
 function generateKey() {
-  const segment = () => crypto.randomBytes(3).toString("hex").toUpperCase();
-  return `${KEY_PREFIX}_${segment()}${segment()}`;
-  // e.g. OVER_LORD_A1B2C3D4E5F6
+  const segment = () => crypto.randomBytes(2).toString("hex").toUpperCase();
+  return `${KEY_PREFIX}-${segment()}${segment()}`;
+  // e.g. OVER_LORD-A1B2C3D4
 }
 
 /** Return expiry timestamp in ms for given type */
@@ -139,7 +140,7 @@ app.get("/getkey", (req, res) => {
 
 // ── POST /getkey/api/start ───────────────────────────────────────
 // Frontend calls this first. Returns { ok, link, token }
-app.post("/getkey/api/start", startLimiter, (req, res) => {
+app.post("/getkey/api/start", startLimiter, async (req, res) => {
   const { type } = req.body || {};
 
   if (!validType(type)) {
@@ -154,23 +155,29 @@ app.post("/getkey/api/start", startLimiter, (req, res) => {
   // Store pending state
   pendingTokens.set(token, { type, createdAt: timestamp, used: false });
 
-  // Build the return URL for the earn task
-  // After user completes the task, the earn service redirects to:
-  //   https://yourdomain.com/getkey?token=<token>
-  const returnUrl = encodeURIComponent(
-    `${process.env.BASE_URL || `http://localhost:${PORT}`}/getkey?token=${encodeURIComponent(token)}`
-  );
+  // Return URL — earnlinks redirects user back here after task
+  const returnUrl = `${process.env.BASE_URL || `http://localhost:${PORT}`}/getkey?token=${encodeURIComponent(token)}`;
 
-  let link;
-  if (EARN_API) {
-    // If you have a linkvertise / work.ink / etc. API endpoint:
-    link = `${EARN_API}?token=${encodeURIComponent(token)}&return_url=${returnUrl}`;
-  } else {
-    // Fallback: direct return (for testing without a real earn service)
-    link = `${process.env.BASE_URL || `http://localhost:${PORT}`}/getkey?token=${encodeURIComponent(token)}`;
+  // ── earnlinks API call ──────────────────────────────────────────
+  if (EARN_API_KEY) {
+    try {
+      const apiUrl  = `${EARN_API_BASE}?api=${EARN_API_KEY}&url=${encodeURIComponent(returnUrl)}&alias=${id}`;
+      const earnRes = await fetch(apiUrl);
+      const earnData = await earnRes.json();
+
+      // earnlinks returns { status: "success", shortenedUrl: "..." }
+      if (earnData.status === "success" && earnData.shortenedUrl) {
+        return res.json({ ok: true, link: earnData.shortenedUrl, token });
+      } else {
+        console.error("[earnlinks] Unexpected response:", earnData);
+      }
+    } catch (err) {
+      console.error("[earnlinks] Fetch error:", err.message);
+    }
   }
 
-  return res.json({ ok: true, link, token });
+  // Fallback: direct return (for testing / if earnlinks fails)
+  return res.json({ ok: true, link: returnUrl, token });
 });
 
 // ── POST /getkey/api/key ─────────────────────────────────────────
